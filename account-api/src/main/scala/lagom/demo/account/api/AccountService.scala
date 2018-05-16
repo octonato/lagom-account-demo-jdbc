@@ -26,6 +26,7 @@ trait AccountService extends Service {
 
   def withdraw(accountNumber: String): ServiceCall[Transaction, Done]
 
+  def transactions: Topic[String]
 
   override final def descriptor = {
     import Service._
@@ -36,6 +37,9 @@ trait AccountService extends Service {
         pathCall("/api/account/:accountNumber/deposit", deposit _),
         pathCall("/api/account/:accountNumber/withdraw", withdraw _),
         pathCall("/api/account/:accountNumber/txcount", transactionCount _)
+      )
+      .withTopics(
+        topic("transactions", transactions)
       )
       .withAutoAcl(true)
     // @formatter:on

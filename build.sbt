@@ -11,7 +11,7 @@ val postgres = "org.postgresql" % "postgresql" % "42.1.4"
 lagomCassandraEnabled in ThisBuild := false
 
 lazy val `account` = (project in file("."))
-  .aggregate(`account-api`, `account-impl`)
+  .aggregate(`account-api`, `account-impl`, `account-stream-api`, `account-stream-impl`)
 
 lazy val `account-api` = (project in file("account-api"))
   .settings(
@@ -26,7 +26,6 @@ lazy val `account-impl` = (project in file("account-impl"))
     libraryDependencies ++= Seq(
       lagomScaladslPersistenceJdbc,
       lagomScaladslKafkaBroker,
-      lagomScaladslTestKit,
       macwire,
       postgres,
       scalaTest
@@ -34,3 +33,22 @@ lazy val `account-impl` = (project in file("account-impl"))
   )
   .settings(lagomForkedTestSettings: _*)
   .dependsOn(`account-api`)
+
+  
+lazy val `account-stream-api` = (project in file("account-stream-api"))
+  .settings(
+    libraryDependencies ++= Seq(
+      lagomScaladslApi
+    )
+  )
+
+lazy val `account-stream-impl` = (project in file("account-stream-impl"))
+  .enablePlugins(LagomScala)
+  .settings(
+    libraryDependencies ++= Seq(
+      lagomScaladslKafkaBroker,
+      macwire,
+      scalaTest
+    )
+  )
+  .dependsOn(`account-stream-api`, `account-api`)
