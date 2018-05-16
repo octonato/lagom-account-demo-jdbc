@@ -12,12 +12,15 @@ import com.lightbend.lagom.scaladsl.api.{Service, ServiceCall}
   */
 trait AccountStreamService extends Service {
 
-//  def stream: ServiceCall[Source[String, NotUsed], Source[String, NotUsed]]
+  def stream(accountNumber: String): ServiceCall[NotUsed, Source[String, NotUsed]]
 
   override final def descriptor = {
     import Service._
 
     named("account-stream")
+      .withCalls(
+        pathCall("/api/account/:accountNumber/stream", stream _)
+      )
       .withAutoAcl(true)
   }
 }

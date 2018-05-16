@@ -26,6 +26,7 @@ lazy val `account-impl` = (project in file("account-impl"))
     libraryDependencies ++= Seq(
       lagomScaladslPersistenceJdbc,
       lagomScaladslKafkaBroker,
+      lagomScaladslPubSub,
       macwire,
       postgres,
       scalaTest

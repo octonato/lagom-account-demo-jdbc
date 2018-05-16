@@ -6,12 +6,13 @@ import akka.Done
 import com.lightbend.lagom.scaladsl.persistence._
 import com.lightbend.lagom.scaladsl.persistence.PersistentEntity.ReplyType
 import com.lightbend.lagom.scaladsl.playjson.{JsonSerializer, JsonSerializerRegistry}
+import com.lightbend.lagom.scaladsl.pubsub.{PubSubRegistry, TopicId}
 import org.slf4j.LoggerFactory
 import play.api.libs.json.{Format, Json}
 
 import scala.collection.immutable.Seq
 
-class AccountEntity extends PersistentEntity {
+class AccountEntity(pubSub: PubSubRegistry) extends PersistentEntity {
 
   override type Command = AccountCommand[_]
   override type Event = AccountEvent
@@ -23,13 +24,19 @@ class AccountEntity extends PersistentEntity {
     case Account(balance) =>
       Actions()
         .onCommand[Deposit, Done] {
-          case (Deposit(amount), ctx, state) =>
-            ctx.thenPersist(Deposited(amount)) { _ => ctx.reply(Done)}
+          case (Deposit(amount), ctx, _) =>
+            ctx.thenPersist(Deposited(amount)) { _ =>
+              pubSub.refFor(TopicId[String](entityId)).publish("Deposited")
+              ctx.reply(Done)
+            }
         }
         .onCommand[Withdraw, Done] {
-          case (Withdraw(amount), ctx, state) =>
+          case (Withdraw(amount), ctx, _) =>
             if (balance - amount >= 0) {
-              ctx.thenPersist(Withdrawn(amount)) { _ => ctx.reply(Done)}
+              ctx.thenPersist(Withdrawn(amount)) { _ =>
+                pubSub.refFor(TopicId[String](entityId)).publish("Withdrawn")
+                ctx.reply(Done)
+              }
             } else {
               ctx.invalidCommand(s"Insufficient balance. Can't withdraw $amount")
               ctx.done

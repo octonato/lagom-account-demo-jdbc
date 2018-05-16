@@ -1,6 +1,8 @@
 package lagom.demo.account.api
 
+import akka.stream.scaladsl.Source
 import akka.{Done, NotUsed}
+import com.lightbend.lagom.scaladsl.api.Service.pathCall
 import com.lightbend.lagom.scaladsl.api.broker.Topic
 import com.lightbend.lagom.scaladsl.api.broker.kafka.{KafkaProperties, PartitionKeyStrategy}
 import com.lightbend.lagom.scaladsl.api.{Service, ServiceCall}
@@ -28,6 +30,8 @@ trait AccountService extends Service {
 
   def transactions: Topic[String]
 
+  def transactionsForAccount(accountNumber: String): ServiceCall[NotUsed, Source[String, NotUsed]]
+
   override final def descriptor = {
     import Service._
     // @formatter:off
@@ -36,7 +40,8 @@ trait AccountService extends Service {
         pathCall("/api/account/:accountNumber/balance", balance _),
         pathCall("/api/account/:accountNumber/deposit", deposit _),
         pathCall("/api/account/:accountNumber/withdraw", withdraw _),
-        pathCall("/api/account/:accountNumber/txcount", transactionCount _)
+        pathCall("/api/account/:accountNumber/txcount", transactionCount _),
+        pathCall("/api/account/:accountNumber/tx", transactionsForAccount _)
       )
       .withTopics(
         topic("transactions", transactions)

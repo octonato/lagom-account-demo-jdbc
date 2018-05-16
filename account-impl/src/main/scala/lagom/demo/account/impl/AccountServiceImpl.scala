@@ -1,5 +1,7 @@
 package lagom.demo.account.impl
 
+import akka.NotUsed
+import akka.stream.scaladsl.Source
 import lagom.demo.account.api
 import lagom.demo.account.api.AccountService
 import com.lightbend.lagom.scaladsl.api.ServiceCall
@@ -8,12 +10,16 @@ import com.lightbend.lagom.scaladsl.broker.TopicProducer
 import com.lightbend.lagom.scaladsl.persistence.{EventStreamElement, PersistentEntityRegistry}
 import org.slf4j.LoggerFactory
 import slick.jdbc.JdbcBackend.DatabaseDef
+
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
+import com.lightbend.lagom.scaladsl.pubsub.PubSubRegistry
+import com.lightbend.lagom.scaladsl.pubsub.TopicId
 
 class AccountServiceImpl (persistentEntityRegistry: PersistentEntityRegistry,
                           accountRepository: AccountReportRepository,
-                          db: DatabaseDef ) extends AccountService {
+                          pubSub: PubSubRegistry,
+                          db: DatabaseDef) extends AccountService {
 
   val logger = LoggerFactory.getLogger(getClass)
 
@@ -54,4 +60,8 @@ class AccountServiceImpl (persistentEntityRegistry: PersistentEntityRegistry,
     }
   }
 
+  override def transactionsForAccount(accountNumber: String): ServiceCall[NotUsed, Source[String, NotUsed]] = ServiceCall { _ =>
+    val topic = pubSub.refFor(TopicId[String](accountNumber))
+    Future.successful(topic.subscriber)
+  }
 }

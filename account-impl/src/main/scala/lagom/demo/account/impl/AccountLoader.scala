@@ -8,6 +8,7 @@ import play.api.libs.ws.ahc.AhcWSComponents
 import lagom.demo.account.api.AccountService
 import com.lightbend.lagom.scaladsl.broker.kafka.LagomKafkaComponents
 import com.lightbend.lagom.scaladsl.persistence.slick.SlickPersistenceComponents
+import com.lightbend.lagom.scaladsl.pubsub.PubSubComponents
 import com.softwaremill.macwire._
 import play.api.db.HikariCPComponents
 
@@ -28,6 +29,7 @@ abstract class AccountApplication(context: LagomApplicationContext)
   extends LagomApplication(context)
     with SlickPersistenceComponents
     with LagomKafkaComponents
+    with PubSubComponents
     with HikariCPComponents
     with AhcWSComponents {
 
