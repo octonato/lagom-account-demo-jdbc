@@ -40,4 +40,18 @@ class AccountServiceImpl (persistentEntityRegistry: PersistentEntityRegistry,
       }
   }
 
+  override def transactions : Topic[String] =
+    TopicProducer.taggedStreamWithOffset(AccountEvent.ShardedTags) {
+      (tag, offset) =>
+        persistentEntityRegistry.eventStream(tag, offset)
+          .map(ev => (convertTransaction(ev), ev.offset))
+    }
+
+  private def convertTransaction(accountEvent: EventStreamElement[AccountEvent]): String = {
+    accountEvent.event match {
+      case Deposited(amount) => s"DEPOSIT: $amount - ACCOUNT: ${accountEvent.entityId}"
+      case Withdrawn(amount) => s"WITHDRAW: $amount - ACCOUNT: ${accountEvent.entityId}"
+    }
+  }
+
 }
