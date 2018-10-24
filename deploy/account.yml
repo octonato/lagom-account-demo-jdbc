@@ -108,8 +108,10 @@ spec:
                   fieldPath: "status.podIP"
             - name: "RP_ENDPOINT_HTTP_PORT"
               value: "10000"
+            - name: "DB_URL"
+              value: "jdbc:postgresql://10.103.25.129:30050/lagom"  
             - name: "RP_JAVA_OPTS"
-              value: "-Dconfig.resource=rp-application.conf -Dakka.discovery.method=kubernetes-api -Dakka.management.cluster.bootstrap.contact-point-discovery.effective-name=account -Dakka.management.cluster.bootstrap.contact-point-discovery.required-contact-point-nr=3 -Dakka.discovery.kubernetes-api.pod-label-selector=appName=%s -Dcom.lightbend.platform-tooling.service-discovery.external-service-addresses.kafka_native.0=_broker._tcp.reactive-sandbox-kafka.default.svc.cluster.local"
+              value: "-Dconfig.resource=rp-application.conf -Djdbc.url=$(DB_URL) -Dakka.discovery.method=kubernetes-api -Dakka.management.cluster.bootstrap.contact-point-discovery.effective-name=account -Dakka.management.cluster.bootstrap.contact-point-discovery.required-contact-point-nr=3 -Dakka.discovery.kubernetes-api.pod-label-selector=appName=%s -Dcom.lightbend.platform-tooling.service-discovery.external-service-addresses.kafka_native.0=_broker._tcp.reactive-sandbox-kafka.default.svc.cluster.local"
             - name: "RP_KUBERNETES_POD_IP"
               valueFrom:
                 fieldRef:

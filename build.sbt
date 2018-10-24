@@ -8,8 +8,6 @@ val macwire = "com.softwaremill.macwire" %% "macros" % "2.3.0" % "provided"
 val scalaTest = "org.scalatest" %% "scalatest" % "3.0.4" % Test
 val postgres = "org.postgresql" % "postgresql" % "42.1.4"
 
-lagomCassandraEnabled in ThisBuild := false
-
 lazy val `account` = (project in file("."))
   .aggregate(`account-api`, `account-impl`)
 
@@ -24,7 +22,7 @@ lazy val `account-impl` = (project in file("account-impl"))
   .enablePlugins(LagomScala, SbtReactiveAppPlugin)
   .settings(
     libraryDependencies ++= Seq(
-      lagomScaladslPersistenceJdbc,
+      lagomScaladslPersistenceCassandra,
       lagomScaladslKafkaBroker,
       lagomScaladslTestKit,
       macwire,

@@ -1,19 +1,14 @@
 package lagom.demo.account.impl
 
-import lagom.demo.account.api
-import lagom.demo.account.api.AccountService
 import com.lightbend.lagom.scaladsl.api.ServiceCall
-import com.lightbend.lagom.scaladsl.api.broker.Topic
-import com.lightbend.lagom.scaladsl.broker.TopicProducer
-import com.lightbend.lagom.scaladsl.persistence.{EventStreamElement, PersistentEntityRegistry}
+import com.lightbend.lagom.scaladsl.persistence.PersistentEntityRegistry
+import lagom.demo.account.api.AccountService
 import org.slf4j.LoggerFactory
-import slick.jdbc.JdbcBackend.DatabaseDef
+
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
 
 class AccountServiceImpl (persistentEntityRegistry: PersistentEntityRegistry,
-                          accountRepository: AccountReportRepository,
-                          db: DatabaseDef ) extends AccountService {
+                          accountRepository: AccountReportRepository) extends AccountService {
 
   val logger = LoggerFactory.getLogger(getClass)
 
@@ -37,7 +32,12 @@ class AccountServiceImpl (persistentEntityRegistry: PersistentEntityRegistry,
   }
 
   override def transactionCount(accountNumber: String) = ServiceCall { _ =>
-    db.run(accountRepository.findByNumber(accountNumber)).map(_.txCount)
+    accountRepository
+      .findByNumber(accountNumber)
+      .map {
+        case Some(acc) => acc.txCount
+        case None => 0
+      }
   }
 
 }

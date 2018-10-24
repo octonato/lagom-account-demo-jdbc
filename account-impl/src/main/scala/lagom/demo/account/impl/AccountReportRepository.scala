@@ -1,58 +1,73 @@
 package lagom.demo.account.impl
 
 import akka.Done
-import slick.dbio.DBIO
-import slick.jdbc.PostgresProfile.api._
-import slick.jdbc.meta.MTable
+import com.lightbend.lagom.scaladsl.persistence.cassandra.CassandraSession
+import akka.stream.Materializer
+import com.datastax.driver.core.{BoundStatement, PreparedStatement}
 
-import scala.concurrent.ExecutionContext.Implicits.global
-
-class AccountReportRepository {
+import scala.concurrent.{ExecutionContext, Future}
+import scala.collection.immutable
+class AccountReportRepository(session: CassandraSession)(implicit ec: ExecutionContext, mat: Materializer) {
 
   case class AccountReport(accountNumber: String, txCount: Int) {
     def increaseCount(): AccountReport = this.copy(txCount = txCount + 1)
   }
 
-  class ReportTable(tag: Tag) extends Table[AccountReport](tag, "account_report") {
 
-    def accountNumber = column[String]("account_number", O.PrimaryKey)
-    def txCount = column[Int]("tx_count")
+  private var insertAccountReport: PreparedStatement = _
 
-    def * = (accountNumber, txCount) <> (AccountReport.tupled, AccountReport.unapply)
-  }
 
-  val reportTable = TableQuery[ReportTable]
-
-  def createTable() ={
-    MTable.getTables.flatMap { tables =>
-      if (!tables.exists(_.name.name == reportTable.baseTableRow.tableName)) {
-        reportTable.schema.create.map(_ => Done)
-      } else {
-        DBIO.successful(Done)
-      }
-    }.transactionally
-
-  }
-
-  def increase(accountNumber: String): DBIO[Done] = {
+  def prepareStatements(): Future[Done] = {
     for {
-      report <- this.findByNumber(accountNumber)
-      _ <- this.save(report.increaseCount())
+      insert <- session.prepare("INSERT INTO accountReports(accountNumber, txCount) VALUES (?, ?)")
+    } yield {
+      insertAccountReport = insert
+      Done
+    }
+  }
+
+  def createTable(): Future[Done] = {
+    for {
+      _ <- session.executeCreateTable("""
+          CREATE TABLE IF NOT EXISTS accountReports (
+            accountNumber text,
+            txCount int,
+            PRIMARY KEY (accountNumber)
+          )
+      """)
     } yield Done
   }
 
-  def findByNumber(accountNumber: String): DBIO[AccountReport] =
-    reportTable
-      .filter(_.accountNumber === accountNumber)
-      .result
-      .headOption
-      .map {
-        case Some(report) => report
-        case None => AccountReport(accountNumber, 0)
-      }
+  def increase(accountNumber: String): Future[immutable.Seq[BoundStatement]] = {
 
-  def save(report: AccountReport): DBIO[Done] =
-    reportTable.insertOrUpdate(report).map(_ => Done)
+    findByNumber(accountNumber).map {
+      case Some(report) => save(report.increaseCount())
+      case None => immutable.Seq.empty[BoundStatement]
+    }
+  }
+
+  def findByNumber(accountNumber: String): Future[Option[AccountReport]] = {
+
+      session.selectOne(s"""
+        SELECT
+          accountNumber, txCount
+        FROM
+          accountReports
+        WHERE
+          accountNumber = ?
+        """,
+        accountNumber).map { rowOpt =>
+          rowOpt.map(row => AccountReport(row.getString("accountNumber"), row.getInt("txCount")))
+        }
+  }
+  def save(report: AccountReport): immutable.Seq[BoundStatement] = {
+    val ps = insertAccountReport.bind()
+    ps.setString("accountNumber", report.accountNumber)
+    ps.setInt("txCount", report.txCount)
+    List(ps)
+  }
+
+
 
 }
 

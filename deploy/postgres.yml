@@ -84,6 +84,7 @@ metadata:
   annotations:
     service.alpha.kubernetes.io/tolerate-unready-endpoints: "true"
 spec:
+  type: NodePort
   ports:
   - name: psql
     port: 5432
