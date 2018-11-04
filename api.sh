@@ -40,7 +40,7 @@ EOF
 
 
 account.tx.count() {
-  http GET $HOST:$PORT/api/transaction/count --verbose
+  http GET $HOST:$PORT/api/account/$1/txcount --verbose
 }
 
 
