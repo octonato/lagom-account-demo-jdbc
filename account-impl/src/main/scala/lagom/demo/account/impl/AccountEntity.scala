@@ -19,18 +19,23 @@ class AccountEntity extends PersistentEntity {
 
   override def initialState = Account(0.0)
 
+  private val logger = LoggerFactory.getLogger(this.getClass)
+
   override def behavior = {
     case Account(balance) =>
       Actions()
         .onCommand[Deposit, Done] {
           case (Deposit(amount), ctx, state) =>
+            logger.info(s"deposit of $amount on account $entityId")
             ctx.thenPersist(Deposited(amount)) { _ => ctx.reply(Done)}
         }
         .onCommand[Withdraw, Done] {
           case (Withdraw(amount), ctx, state) =>
             if (balance - amount >= 0) {
+              logger.info(s"withdraw of $amount on account $entityId")
               ctx.thenPersist(Withdrawn(amount)) { _ => ctx.reply(Done)}
             } else {
+              logger.info(s"Insufficient balance. Can't withdraw $amount from account $entityId")
               ctx.invalidCommand(s"Insufficient balance. Can't withdraw $amount")
               ctx.done
             }

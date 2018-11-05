@@ -1,7 +1,9 @@
 package lagom.demo.account.impl
 
 import com.lightbend.lagom.scaladsl.api.ServiceCall
-import com.lightbend.lagom.scaladsl.persistence.PersistentEntityRegistry
+import com.lightbend.lagom.scaladsl.api.broker.Topic
+import com.lightbend.lagom.scaladsl.broker.TopicProducer
+import com.lightbend.lagom.scaladsl.persistence.{EventStreamElement, PersistentEntityRegistry}
 import lagom.demo.account.api.AccountService
 import org.slf4j.LoggerFactory
 
@@ -48,6 +50,8 @@ class AccountServiceImpl (persistentEntityRegistry: PersistentEntityRegistry,
     }
 
   private def convertTransaction(accountEvent: EventStreamElement[AccountEvent]): String = {
+
+    logger.info(s"Converting event before publishing to Kafka: ${accountEvent.event}")
     accountEvent.event match {
       case Deposited(amount) => s"DEPOSIT: $amount - ACCOUNT: ${accountEvent.entityId}"
       case Withdrawn(amount) => s"WITHDRAW: $amount - ACCOUNT: ${accountEvent.entityId}"
