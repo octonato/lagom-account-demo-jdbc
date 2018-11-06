@@ -5,12 +5,12 @@
 # e.g.: . api-kube.sh
 
 HOST="https://minikube.local"
-PORT=10000
+PORT=80
 
 # Use case: get the balance for account 123-4567-890
 # Call: account.balance 123-4567-890
 account.balance() {
-  http $HOST:$PORT/api/account/$1/balance  --verbose
+  http https://192.168.99.100/api/account/$1/balance --verify=no  --verbose
 }
 
 
@@ -23,7 +23,7 @@ cat <<EOF > /tmp/last-$1.json
 "amount": $2
 }
 EOF
-  http POST $HOST:$PORT/api/account/$1/deposit --verify=no --verbose < /tmp/last-$1.json
+  http POST https://192.168.99.100/api/account/$1/deposit --verify=no --verbose < /tmp/last-$1.json
 }
 
 
@@ -35,12 +35,12 @@ cat <<EOF > /tmp/last-$1.json
 "amount": $2
 }
 EOF
-  http POST $HOST:$PORT/api/account/$1/withdraw --verify=no --verbose < /tmp/last-$1.json
+  http POST https://192.168.99.100/api/account/$1/withdraw --verify=no --verbose < /tmp/last-$1.json
 }
 
 
 account.tx.count() {
-  http GET $HOST:$PORT/api/account/$1/txcount --verify=no --verbose
+  http GET https://192.168.99.100/api/account/$1/txcount --verify=no --verbose
 }
 
 

@@ -133,7 +133,7 @@ spec:
             - containerPort: 10001
               name: "akka-remote"
             - containerPort: 10002
-              name: "akka-mgmt-http"
+              name: "management"
           volumeMounts: []
           command:
             - "/rp-start"
@@ -142,12 +142,12 @@ spec:
           readinessProbe:
             httpGet:
               path: "/platform-tooling/ready"
-              port: "akka-mgmt-http"
+              port: "management"
             periodSeconds: 10
           livenessProbe:
             httpGet:
               path: "/platform-tooling/healthy"
-              port: "akka-mgmt-http"
+              port: "management"
             periodSeconds: 10
             initialDelaySeconds: 60
       volumes: []
@@ -168,7 +168,7 @@ spec:
       port: 10001
       protocol: TCP
       targetPort: 10001
-    - name: "akka-mgmt-http"
+    - name: "management"
       port: 10002
       protocol: TCP
       targetPort: 10002

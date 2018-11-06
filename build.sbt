@@ -1,5 +1,8 @@
+import Dependencies._
+
 organization in ThisBuild := "lagom.demo"
 version in ThisBuild := "1.0-SNAPSHOT"
+
 
 // the Scala version that will be used for cross-compiled libraries
 scalaVersion in ThisBuild := "2.12.4"
@@ -27,7 +30,7 @@ lazy val `account-impl` = (project in file("account-impl"))
       macwire,
       postgres,
       scalaTest
-    )
+    ) //++ reactiveLib
   )
   .settings(lagomForkedTestSettings: _*)
   .dependsOn(`account-api`)
@@ -47,6 +50,6 @@ lazy val `account-stream-impl` = (project in file("account-stream-impl"))
       lagomScaladslKafkaBroker,
       macwire,
       scalaTest
-    )
+    ) 
   )
   .dependsOn(`account-stream-api`, `account-api`)
