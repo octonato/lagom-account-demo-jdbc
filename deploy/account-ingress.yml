@@ -1,0 +1,13 @@
+---
+apiVersion: "extensions/v1beta1"
+kind: Ingress
+metadata:
+  name: account
+spec:
+  rules:
+    - http:
+        paths:
+          - path: "/api/account"
+            backend:
+              serviceName: account
+              servicePort: 10000
