@@ -1,9 +1,8 @@
-postgres:
-  image: postgres:latest
-  container_name: postgres-account-demo
-  environment:
-    - "TZ=Europe/Amsterdam"
-    - "POSTGRES_USER=lagom"
-    - "POSTGRES_PASSWORD=lagom"
-  ports:
-    - "5432:5432"  # credentials (lagom:lagom)
+version: '3'
+services:
+  cassandra:
+    build: ./docker
+    image: cassandra-lagom
+    container_name: cassandra-lagom-test
+    ports:
+      - "9042:9042"

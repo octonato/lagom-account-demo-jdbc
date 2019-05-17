@@ -11,6 +11,9 @@ val macwire = "com.softwaremill.macwire" %% "macros" % "2.3.0" % "provided"
 val scalaTest = "org.scalatest" %% "scalatest" % "3.0.4" % Test
 val postgres = "org.postgresql" % "postgresql" % "42.1.4"
 
+lagomCassandraEnabled in ThisBuild := false
+lagomUnmanagedServices in ThisBuild := Map("cas_native" -> "tcp://localhost:9042")
+
 lazy val `account` = (project in file("."))
   .aggregate(`account-api`, `account-impl`, `account-stream-api`, `account-stream-impl`)
 
