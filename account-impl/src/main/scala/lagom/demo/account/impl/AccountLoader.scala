@@ -10,12 +10,12 @@ import com.softwaremill.macwire._
 import lagom.demo.account.api.AccountService
 import play.api.libs.ws.ahc.AhcWSComponents
 
-import com.lightbend.rp.servicediscovery.lagom.scaladsl.LagomServiceLocatorComponents
+import com.lightbend.lagom.scaladsl.akka.discovery.AkkaDiscoveryComponents
 
 class AccountLoader extends LagomApplicationLoader {
 
   override def load(context: LagomApplicationContext): LagomApplication =
-    new AccountApplication(context) with LagomServiceLocatorComponents
+    new AccountApplication(context) with AkkaDiscoveryComponents
 
   override def loadDevMode(context: LagomApplicationContext): LagomApplication =
     new AccountApplication(context) with LagomDevModeComponents
