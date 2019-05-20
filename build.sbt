@@ -25,7 +25,7 @@ lazy val `account-api` = (project in file("account-api"))
   )
 
 lazy val `account-impl` = (project in file("account-impl"))
-  .enablePlugins(LagomScala, SbtReactiveAppPlugin)
+  .enablePlugins(LagomScala)
   .settings(
     libraryDependencies ++= Seq(
       lagomScaladslPersistenceCassandra,
