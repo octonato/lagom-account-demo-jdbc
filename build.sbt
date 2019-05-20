@@ -7,6 +7,10 @@ version in ThisBuild := "1.0-SNAPSHOT"
 // the Scala version that will be used for cross-compiled libraries
 scalaVersion in ThisBuild := "2.12.8"
 
+import com.lightbend.lagom.core.LagomVersion
+
+val lagomScalaServiceDiscovery= "com.lightbend.lagom" %% "lagom-scaladsl-akka-discovery-service-locator" % LagomVersion.current
+
 val macwire = "com.softwaremill.macwire" %% "macros" % "2.3.0" % "provided"
 val scalaTest = "org.scalatest" %% "scalatest" % "3.0.4" % Test
 val postgres = "org.postgresql" % "postgresql" % "42.1.4"
@@ -30,6 +34,7 @@ lazy val `account-impl` = (project in file("account-impl"))
     libraryDependencies ++= Seq(
       lagomScaladslPersistenceCassandra,
       lagomScaladslKafkaBroker,
+      lagomScalaServiceDiscovery,
       macwire,
       postgres,
       scalaTest
