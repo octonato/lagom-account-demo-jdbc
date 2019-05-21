@@ -1,8 +1,9 @@
 version: '3'
 services:
   cassandra:
-    build: ./docker
-    image: cassandra-lagom
+    image: cassandra
     container_name: cassandra-lagom-test
     ports:
       - "9042:9042"
+
+      

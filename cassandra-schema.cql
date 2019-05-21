@@ -1,8 +1,4 @@
-#!/bin/bash
 
-exec /docker-entrypoint.sh "$@" 
-
-read -r -d '' CQL <<'EOF'
 CREATE KEYSPACE IF NOT EXISTS account
 WITH REPLICATION = { 'class' : 'SimpleStrategy','replication_factor':1 };
 
@@ -79,10 +75,3 @@ CREATE TABLE account.snapshots (
 ) WITH CLUSTERING ORDER BY (sequence_nr DESC)
     AND gc_grace_seconds = 864000
     AND compaction = {'bucket_high': '1.5', 'bucket_low': '0.5', 'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy', 'enabled': 'true', 'max_threshold': '32', 'min_sstable_size': '50', 'min_threshold': '4', 'tombstone_compaction_interval': '86400', 'tombstone_threshold': '0.2', 'unchecked_tombstone_compaction': 'false'};  
-EOF
-  
-  
-until echo $CQL | cqlsh; do
-  echo "cqlsh: Cassandra is unavailable - retry later"
-  sleep 2
-done 
